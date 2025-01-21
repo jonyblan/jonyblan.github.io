@@ -6,7 +6,7 @@ class Edge {
         this.totalEdges = totalEdges; // Total number of edges between these nodes
     }
 
-	draw() {
+	draw(directed) {
         const { x: x1, y: y1 } = this.node1;
         const { x: x2, y: y2 } = this.node2;
 
@@ -14,11 +14,11 @@ class Edge {
         if (this.node1 === this.node2) {
             this.drawSelfLoop(x1, y1);
         } else {
-            this.drawStraightLine(x1, y1, x2, y2);
+            this.drawStraightLine(x1, y1, x2, y2, directed);
         }
     }
 	
-	drawStraightLine(x1, y1, x2, y2) {
+	drawStraightLine(x1, y1, x2, y2, directed) {
         const dx = x2 - x1;
         const dy = y2 - y1;
         const distance = dist(x1, y1, x2, y2);
@@ -49,8 +49,10 @@ class Edge {
         strokeWeight(2);
         line(offsetStartX, offsetStartY, offsetEndX, offsetEndY);
 
-        // Draw arrowhead with offset applied
-        this.drawArrowhead(offsetEndX, offsetEndY, dx, dy);
+		if(directed){
+			// Draw arrowhead with offset applied
+			this.drawArrowhead(offsetEndX, offsetEndY, dx, dy);
+		}
     }
 
 

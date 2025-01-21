@@ -7,7 +7,6 @@ let startGraphButton;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-
 	createGraphSetupForm();
 }
 
@@ -43,18 +42,18 @@ function createGraphSetupForm() {
 
     // Add form elements to the form container
     formContainer.html(`
-        <h2 style="font-family: 'Poppins', sans-serif; color: #fff;">Graph Configuration</h2>
+        <h2 style="font-family: 'Poppins', sans-serif; color: #fff;">Configuracion del grafo</h2>
         <label style="font-family: 'Poppins', sans-serif; color: #fff;">
-            <input type="checkbox" id="directed"> Directed (A -> B ≠ B -> A)
+            <input type="checkbox" id="directed"> Dirijido (A -> B ≠ B -> A)
         </label><br>
         <label style="font-family: 'Poppins', sans-serif; color: #fff;">
-            <input type="checkbox" id="loop"> Allow Loops (A -> A)
+            <input type="checkbox" id="loop"> Permitir lazos (A -> A)
         </label><br>
         <label style="font-family: 'Poppins', sans-serif; color: #fff;">
-            <input type="checkbox" id="multiedge"> Allow Multiple Edges
+            <input type="checkbox" id="multiedge"> Permitir multi-aristas
         </label><br>
         <label style="font-family: 'Poppins', sans-serif; color: #fff;">
-            <input type="checkbox" id="weighted"> Weighted Edges
+            <input type="checkbox" id="weighted"> Aristas con peso (no implementado)
         </label><br>
         <button id="startGraphButton" style="
             background-color: #32CD32; /* Light green */
@@ -66,7 +65,7 @@ function createGraphSetupForm() {
             padding: 10px 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-        ">Start Graph</button>
+        ">Empezar</button>
     `);
 
     // Start button logic
@@ -94,53 +93,78 @@ function createGraphSetupForm() {
 // Create buttons for graph operations
 function createGraphControlButtons() {
     // Create the buttons as before, interacting with the graph object
-    addNodeButton = new Button(100, 100, 150, 50, "Add Node", () => {
+    addNodeButton = new Button(100, 100, 150, 50, "Añadir vertice", () => {
         const x = random(50, width - 50);
         const y = random(50, height - 50);
         graph.addNode(x, y, 30);
     });
 
-    addEdgeButton = new Button(100, 200, 150, 50, "Add Edge", () => {
+    addEdgeButton = new Button(100, 200, 150, 50, "Añadir arista", () => {
         if (graph.selectedNode) {
             graph.activateEdgeMode("add");
         }
     });
 
-    deleteEdgeButton = new Button(100, 300, 150, 50, "Delete Edge", () => {
+    deleteEdgeButton = new Button(100, 300, 150, 50, "Borrar arista", () => {
         if (graph.selectedNode) {
             graph.activateEdgeMode("delete");
         }
     });
 
-    deleteNodeButton = new Button(100, 400, 150, 50, "Delete Node", () => {
+    deleteNodeButton = new Button(100, 400, 150, 50, "Borrar nodo", () => {
         if (graph.selectedNode) {
             graph.deleteNode(graph.selectedNode);
         }
     });
 }
 
-function mousePressed() {
-	if(!graph){
-		return ;
-	}
-	
-	addNodeButton.handleMousePressed();
-	addEdgeButton.handleMousePressed();
-	deleteEdgeButton.handleMousePressed();
-	deleteNodeButton.handleMousePressed();
-	
-	graph.handleMousePressed();
-    
+function mousePressed(event) {
+    if (!graph) {
+        return;
+    }
 
-    // Handle node dragging
-    graph.nodes.forEach(node => {
-        if (node.isHovered()) {
-            nodePressed = node;
+    addNodeButton.handleMousePressed();
+    addEdgeButton.handleMousePressed();
+    deleteEdgeButton.handleMousePressed();
+    deleteNodeButton.handleMousePressed();
+
+    // Check for right-click (button 2)
+    if (event.button === 2) {
+        // Prevent the default context menu
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Check if a node is clicked
+        let clickedNode = null;
+        graph.nodes.forEach(node => {
+            if (node.isHovered()) {
+                clickedNode = node;
+            }
+        });
+
+        if (clickedNode) {
+            // Show the context menu for the clicked node
+            graph.showContextMenu(clickedNode);
         }
-    });
+    } else {
+        // Handle regular left-clicks and other interactions
+        graph.handleMousePressed(event);
+    }
 
-    isDragging = true;
+    // Handle node dragging (if not a right-click)
+    if (event.button !== 2) {
+        graph.nodes.forEach(node => {
+            if (node.isHovered()) {
+                nodePressed = node;
+            }
+        });
+
+        isDragging = true;
+    }
 }
+
+
+
 
 function mouseDragged() {
     if (isDragging && nodePressed) {
